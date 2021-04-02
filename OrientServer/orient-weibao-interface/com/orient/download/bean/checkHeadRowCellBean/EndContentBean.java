@@ -7,6 +7,17 @@ public class EndContentBean {
     private String content="";
     //只针对type类型是对勾或者是否无类型，true表示检查项被操作过，false代表未操作过
     private boolean operation;
+
+    private String serverId;
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
+
     //2021.2.2新增故障单元格描述
 //    private String troubleCellDesp="";
     public String getId() {

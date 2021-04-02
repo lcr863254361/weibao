@@ -17,6 +17,15 @@ public class CellDataBean {
     //只针对type类型是对勾或者是否无类型，true表示检查项被操作过，false代表未操作过
     private boolean operation;
 
+    private String serverId;
+
+    public String getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
 
     public String getContent() {
         return content;

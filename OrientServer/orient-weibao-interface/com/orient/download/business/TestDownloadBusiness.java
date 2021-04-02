@@ -1430,6 +1430,7 @@ public class TestDownloadBusiness extends BaseBusiness {
                                         structDeviceInstEntity.setName(deviceName);
                                         structDeviceInstEntity.setVersion(CommonTools.Obj2String(deviceInstMap.get("C_VERSION_" + structDeviceInstBM.getId())));
                                         structDeviceInstEntity.setNumber(CommonTools.Obj2String(deviceInstMap.get("C_NUMBER_" + structDeviceInstBM.getId())));
+                                        structDeviceInstEntity.setDeviceId(deviceId);
                                         structDeviceInstEntities.add(structDeviceInstEntity);
                                     }
                                 }
@@ -1441,11 +1442,14 @@ public class TestDownloadBusiness extends BaseBusiness {
                                     StructDeviceCycleCheckEntity structDeviceCycleCheckEntity = new StructDeviceCycleCheckEntity();
                                     String deviceCycleId = deviceCycleMap.get("ID").toString();
                                     String cycleName = CommonTools.Obj2String(deviceCycleMap.get("C_NAME_" + structDeviceCycleBM.getId()));
+                                    String checkCycle=CommonTools.Obj2String(deviceCycleMap.get("C_CHECK_CYCLE_"+structDeviceCycleBM.getId()));
                                     String refDeviceId = CommonTools.Obj2String(deviceCycleMap.get("T_STRUCT_DEVICE_" + schemaId + "_ID"));
                                     if (deviceId.equals(refDeviceId)) {
                                         CheckTempInstBean checkTempInstBean = new CheckTempInstBean();
                                         structDeviceCycleCheckEntity.setName(cycleName);
                                         structDeviceCycleCheckEntity.setId(deviceCycleId);
+                                        structDeviceCycleCheckEntity.setCheckCycle(checkCycle);
+                                        structDeviceCycleCheckEntity.setDeviceId(deviceId);
                                         checkTempInstBM.clearAllFilter();
                                         checkTempInstBM.setReserve_filter("AND T_CYCLE_DEVICE_" + schemaId + "_ID='" + deviceCycleId + "'");
                                         List<Map<String, String>> checkTempInstList = commonGetList(checkTempInstBM);

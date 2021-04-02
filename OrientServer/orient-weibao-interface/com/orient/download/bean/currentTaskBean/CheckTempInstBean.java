@@ -7,7 +7,7 @@ package com.orient.download.bean.currentTaskBean;
  * @create 2019-02-20 15:31
  */
 public class CheckTempInstBean {
-    private String id = "";
+    private String id ;
     private String checkName = "";
     private String state = "";
     //2019.08.19 新增检查表格类型

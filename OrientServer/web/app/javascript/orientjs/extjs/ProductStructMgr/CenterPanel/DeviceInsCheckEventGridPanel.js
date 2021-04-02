@@ -29,32 +29,40 @@ Ext.define('OrientTdm.ProductStructMgr.CenterPanel.DeviceInsCheckEventGridPanel'
                 var me = this;
                 var toolbar = me.dockedItems[0];
                 toolbar.add({
-                    iconCls: 'icon-back',
-                    text: '返回上一页',
-                    handler: function () {
-                        var centerPanel = Ext.getCmp('deviceInstDashboard').centerPanel;
-                        //移除所有面板
-                        centerPanel.items.each(function (item, index) {
-                            if (0 != index) {
-                                centerPanel.remove(item);
-                            }
-                        });
-                        var filterColumnName = "T_STRUCT_DEVICE_" + TDM_SERVER_CONFIG.WEI_BAO_SCHEMA_ID + "_ID";//主表表名ID
-                        var customerFilter = [new CustomerFilter(filterColumnName, CustomerFilter.prototype.SqlOperation.Equal, "", deviceId)];//过滤条件
-                        var gridPanel = Ext.create('OrientTdm.ProductStructMgr.CenterPanel.StructDeviceInstGridPanel', {
-                            title: '产品结构设备实例',
-                            iconCls: "icon-data-node",
-                            customerFilter: customerFilter,
-                            deviceId: deviceId,
-                            bindNode: bindNode
-                        });
-                        //自己手写的后台方法有效
-                        // gridPanel.modelGrid.getStore().getProxy().setExtraParam("T_STRUCT_SYSTEM_" + TDM_SERVER_CONFIG.WEI_BAO_SCHEMA_ID + '_ID', structSystemId);
-                        centerPanel.add(gridPanel);
-                        centerPanel.setActiveTab(1);
+                        iconCls: 'icon-back',
+                        text: '返回上一页',
+                        handler: function () {
+                            var centerPanel = Ext.getCmp('deviceInstDashboard').centerPanel;
+                            //移除所有面板
+                            centerPanel.items.each(function (item, index) {
+                                if (0 != index) {
+                                    centerPanel.remove(item);
+                                }
+                            });
+                            var filterColumnName = "T_STRUCT_DEVICE_" + TDM_SERVER_CONFIG.WEI_BAO_SCHEMA_ID + "_ID";//主表表名ID
+                            var customerFilter = [new CustomerFilter(filterColumnName, CustomerFilter.prototype.SqlOperation.Equal, "", deviceId)];//过滤条件
+                            var gridPanel = Ext.create('OrientTdm.ProductStructMgr.CenterPanel.StructDeviceInstGridPanel', {
+                                title: '产品结构设备实例',
+                                iconCls: "icon-data-node",
+                                customerFilter: customerFilter,
+                                deviceId: deviceId,
+                                bindNode: bindNode
+                            });
+                            //自己手写的后台方法有效
+                            // gridPanel.modelGrid.getStore().getProxy().setExtraParam("T_STRUCT_SYSTEM_" + TDM_SERVER_CONFIG.WEI_BAO_SCHEMA_ID + '_ID', structSystemId);
+                            centerPanel.add(gridPanel);
+                            centerPanel.setActiveTab(1);
+                        },
+                        scope: me
                     },
-                    scope: me
-                });
+                    '->', {
+                        xtype: 'tbtext',
+                        text: '<span style="color: red">*双击行即可查看检查表</span>'
+                    });
+                this.getStore().sort([{
+                    "property": "C_CHECK_TIME_" + modelId,
+                    "direction": "ASC"
+                }]);
             }
         });
         //设置grid的点击事件
@@ -79,7 +87,7 @@ Ext.define('OrientTdm.ProductStructMgr.CenterPanel.DeviceInsCheckEventGridPanel'
                     //     })
                     // }
                 },
-                isDeviceInsCheckEvent:true
+                isDeviceInsCheckEvent: true
             };
 
             //动态创建预览模块

@@ -3,6 +3,7 @@ package com.orient.download.bean.productStructEntity;
 import java.io.Serializable;
 
 public class StructDeviceInstEntity implements Serializable {
+    private String deviceId;
     private String id;
     private String name;
     private String deviceState;
@@ -51,5 +52,13 @@ public class StructDeviceInstEntity implements Serializable {
 
     public StructDeviceInstEntity() {
 
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 }

@@ -884,7 +884,8 @@ public class TestUploadBusiness extends BaseBusiness {
                     //此处建立此字段，是为了后期异常表和正常表的图片同时上传时获取异常表的单元格ID
                     // 区分异常表的单元格ID和正常表的单元格ID
 //                    cellData.put("C_EXCEPTION_CELLID_" + cellInstBM.getId(), upCellId);
-                    cellDataBean.setId(newCellId);
+//                    cellDataBean.setId(newCellId);
+                    cellDataBean.setServerId(newCellId);
                     isCollect = true;
                 }
                 if (!StringUtil.isEmpty(value)) {
@@ -903,12 +904,18 @@ public class TestUploadBusiness extends BaseBusiness {
         }
         if (giveClientFrontContentBeanList != null && giveClientFrontContentBeanList.size() > 0) {
             checkListTableBean.setFrontContentBeanList(giveClientFrontContentBeanList);
+        }else{
+            checkListTableBean.setFrontContentBeanList(null);
         }
         if (giveClientEndContentBeanList != null && giveClientEndContentBeanList.size() > 0) {
             checkListTableBean.setEndContentBeanList(giveClientEndContentBeanList);
+        }else{
+            checkListTableBean.setEndContentBeanList(null);
         }
         if (collectPictureRowBeanList != null && collectPictureRowBeanList.size() > 0) {
             checkListTableBean.setRowBeanArrayList(collectPictureRowBeanList);
+        }else{
+            checkListTableBean.setRowBeanArrayList(null);
         }
         if ((giveClientFrontContentBeanList != null && giveClientFrontContentBeanList.size() > 0) || (giveClientEndContentBeanList != null && giveClientEndContentBeanList.size() > 0) || (collectPictureRowBeanList != null && collectPictureRowBeanList.size() > 0)) {
             return checkListTableBean;
@@ -929,7 +936,8 @@ public class TestUploadBusiness extends BaseBusiness {
                             cellTableInstName, schemaId, frontContentBean.getName(), frontContentBean.getCellType(),
                             frontContentBean.getId(), frontContentBean.getContent(), newTempInstId, isFrontOrEnd);
                     if (newCellId != null) {
-                        frontContentBean.setId(newCellId);
+//                        frontContentBean.setId(newCellId);
+                        frontContentBean.setServerId(newCellId);
                         giveClientFrontContentBeanList.add(frontContentBean);
                     }
                 }
@@ -940,7 +948,8 @@ public class TestUploadBusiness extends BaseBusiness {
                             cellTableInstName, schemaId, endContentBean.getName(), endContentBean.getCellType(),
                             endContentBean.getId(), endContentBean.getContent(), newTempInstId, isFrontOrEnd);
                     if (newCellId != null) {
-                        endContentBean.setId(newCellId);
+//                        endContentBean.setId(newCellId);
+                        endContentBean.setServerId(newCellId);
                         giveClientFrontContentBeanList.add(endContentBean);
                     }
                 }
@@ -1657,83 +1666,59 @@ public class TestUploadBusiness extends BaseBusiness {
     }
 
     public LinkedList<DeviceInstCheckEntity> uploadDeviceInstCheckEvent(List<DeviceInstCheckEntity> deviceInstCheckEntityList) {
-        IBusinessModel structDeviceInstBM = businessModelService.getBusinessModelBySName(PropertyConstant.STRUCT_DEVICE_INS, schemaId, EnumInter.BusinessModelEnum.Table);
         IBusinessModel deviceInstCheckEventBM = businessModelService.getBusinessModelBySName(PropertyConstant.DEVICE_INS_EVENT, schemaId, EnumInter.BusinessModelEnum.Table);
         IBusinessModel checkInstBM = businessModelService.getBusinessModelBySName(PropertyConstant.CHECK_TEMP_INST, schemaId, EnumInter.BusinessModelEnum.Table);
-        List<Map<String, String>> structDeviceInstList = testDownloadBusiness.commonGetList(structDeviceInstBM);
         LinkedList<DeviceInstCheckEntity> giveClientDeviceInstCheckList = new LinkedList();
         for (DeviceInstCheckEntity deviceInstCheckEntity : deviceInstCheckEntityList) {
             String deviceInstId = deviceInstCheckEntity.getDeviceInstId();
             String systemId = deviceInstCheckEntity.getSystemId();
-            LinkedList<DeviceInstCheckEventEntity> giveClientDeviceInstEventEntityList = new LinkedList<>();
-            List<DeviceInstCheckEventEntity> deviceInstCheckEventEntityList = deviceInstCheckEntity.getDeviceInstCheckEventEntities();
-            if (deviceInstCheckEventEntityList != null && deviceInstCheckEventEntityList.size() > 0) {
-                for (DeviceInstCheckEventEntity deviceInstCheckEventEntity : deviceInstCheckEventEntityList) {
-                    String checkEventName = deviceInstCheckEventEntity.getCheckEventName();
-                    String checkerId = deviceInstCheckEventEntity.getChecker();
-                    StringBuilder userSql = new StringBuilder();
-                    String checker = "";
-                    if (!"".equals(checkerId) && checkerId != null) {
-                        userSql.append("select id,all_name from cwm_sys_user where id ='").append(checkerId).append("'");
-                        List<Map<String, Object>> userList = metaDaoFactory.getJdbcTemplate().queryForList(userSql.toString());
-                        if (userList != null && userList.size() > 0) {
-                            checker = CommonTools.Obj2String(userList.get(0).get("all_name"));
+            DeviceInstCheckEventEntity deviceInstCheckEventEntity = deviceInstCheckEntity.getDeviceInstCheckEventEntity();
+            if (deviceInstCheckEventEntity != null) {
+                String checkEventName = deviceInstCheckEventEntity.getCheckEventName();
+                String checker = deviceInstCheckEventEntity.getChecker();
+                String checkTime = deviceInstCheckEventEntity.getCheckTime();
+                String isPassed = deviceInstCheckEventEntity.getPassed();
+                Map deviceInstEventMap = UtilFactory.newHashMap();
+                deviceInstEventMap.put("C_NAME_" + deviceInstCheckEventBM.getId(), checkEventName);
+                deviceInstEventMap.put("C_CHECK_PERSON_" + deviceInstCheckEventBM.getId(), checker);
+                deviceInstEventMap.put("C_CHECK_TIME_" + deviceInstCheckEventBM.getId(), checkTime);
+                deviceInstEventMap.put("C_IS_PASSED_" + deviceInstCheckEventBM.getId(), isPassed);
+                deviceInstEventMap.put("T_STRUCT_DEVICE_INS_" + schemaId + "_ID", deviceInstId);
+                String structDeviceId = deviceInstCheckEntity.getDeviceId();
+                deviceInstEventMap.put("T_STRUCT_SYSTEM_" + schemaId + "_ID", systemId);
+                deviceInstEventMap.put("T_STRUCT_DEVICE_" + schemaId + "_ID", structDeviceId);
+                String newDeviceInstEventId = orientSqlEngine.getBmService().insertModelData(deviceInstCheckEventBM, deviceInstEventMap);
+                List<CheckListTableBean> checkListTableBeanList = deviceInstCheckEventEntity.getCheckListTableBeanList();
+                LinkedList<CheckListTableBean> giveClientCheckTableList = new LinkedList<>();
+                if (checkListTableBeanList != null && checkListTableBeanList.size() > 0) {
+                    for (CheckListTableBean checkListTableBean : checkListTableBeanList) {
+                        String checkName = checkListTableBean.getName();
+                        String checkDate = checkListTableBean.getCheckDate();
+                        String checkTableType = checkListTableBean.getCheckTableType();
+                        String checkerId=checkListTableBean.getCheckPerson();
+                        Map checkInstMap = UtilFactory.newHashMap();
+                        checkInstMap.put("C_NAME_" + checkInstBM.getId(), checkName);
+                        checkInstMap.put("C_CHECK_STATE_" + checkInstBM.getId(), "已上传");
+                        checkInstMap.put("C_INS_TYPE_" + checkInstBM.getId(), checkTableType);
+                        checkInstMap.put("C_CHECK_TIME_" + checkInstBM.getId(), checkDate);
+                        checkInstMap.put("C_CHECK_PERSON_" + checkInstBM.getId(), checkerId);
+                        checkInstMap.put("C_ATTENTION_" + checkInstBM.getId(), checkListTableBean.getIsAttention());
+                        checkInstMap.put("T_DEVICE_INS_EVENT_" + schemaId + "_ID", newDeviceInstEventId);
+                        String newCheckInstId = orientSqlEngine.getBmService().insertModelData(checkInstBM, checkInstMap);
+                        //复制检查表模板实例
+                        checkListTableBean = this.copyInsertCheckHeaderCellData(checkListTableBean, newCheckInstId);
+                        //返回给终端的检查表
+                        if (checkListTableBean != null) {
+                            giveClientCheckTableList.add(checkListTableBean);
                         }
-                    }
-                    String checkTime = deviceInstCheckEventEntity.getCheckTime();
-                    boolean isPassed = deviceInstCheckEventEntity.isPassed();
-                    Map deviceInstEventMap = UtilFactory.newHashMap();
-                    deviceInstEventMap.put("C_NAME_" + deviceInstCheckEventBM.getId(), checkEventName);
-                    deviceInstEventMap.put("C_CHECK_PERSON_" + deviceInstCheckEventBM.getId(), checker);
-                    deviceInstEventMap.put("C_CHECK_TIME_" + deviceInstCheckEventBM.getId(), checkTime);
-                    deviceInstEventMap.put("C_IS_CHECK_" + deviceInstCheckEventBM.getId(), isPassed);
-                    deviceInstEventMap.put("T_STRUCT_DEVICE_INS_" + schemaId + "_ID", deviceInstId);
-                    String structDeviceId = "";
-                    for (Map deviceInstMap : structDeviceInstList) {
-                        String hasDeviceInstId = deviceInstMap.get("ID").toString();
-                        if (deviceInstId.equals(hasDeviceInstId)) {
-                            structDeviceId = CommonTools.Obj2String(deviceInstMap.get("T_STRUCT_DEVICE_" + schemaId + "_ID"));
-                            break;
-                        }
-                    }
-                    deviceInstEventMap.put("T_STRUCT_SYSTEM_" + schemaId + "_ID", systemId);
-                    deviceInstEventMap.put("T_STRUCT_DEVICE_" + schemaId + "_ID", structDeviceId);
-                    String newDeviceInstEventId = orientSqlEngine.getBmService().insertModelData(deviceInstCheckEventBM, deviceInstEventMap);
-                    List<CheckListTableBean> checkListTableBeanList = deviceInstCheckEventEntity.getCheckListTableBeanList();
-                    LinkedList<CheckListTableBean> giveClientCheckTableList = new LinkedList<>();
-                    if (checkListTableBeanList != null && checkListTableBeanList.size() > 0) {
-                        for (CheckListTableBean checkListTableBean : checkListTableBeanList) {
-                            String checkName = checkListTableBean.getName();
-                            String checkPerson = checkListTableBean.getCheckPerson();
-                            String checkDate = checkListTableBean.getCheckDate();
-                            String checkTableType = checkListTableBean.getCheckTableType();
-                            Map checkInstMap = UtilFactory.newHashMap();
-                            checkInstMap.put("C_NAME_" + checkInstBM.getId(), checkName);
-                            checkInstMap.put("C_CHECK_STATE_" + checkInstBM.getId(), "已上传");
-                            checkInstMap.put("C_INS_TYPE_" + checkInstBM.getId(), checkTableType);
-                            checkInstMap.put("C_CHECK_TIME_" + checkInstBM.getId(), checkDate);
-                            checkInstMap.put("C_CHECK_PERSON_" + checkInstBM.getId(), checker);
-                            checkInstMap.put("C_ATTENTION_" + checkInstBM.getId(), checkListTableBean.getIsAttention());
-                            checkInstMap.put("T_DEVICE_INS_EVENT_" + systemId + "_ID", newDeviceInstEventId);
-                            String newCheckInstId = orientSqlEngine.getBmService().insertModelData(checkInstBM, checkInstMap);
-                            //复制检查表模板实例
-                            checkListTableBean = this.copyInsertCheckHeaderCellData(checkListTableBean, newCheckInstId);
-                            //返回给终端的检查表
-                            if (checkListTableBean != null) {
-                                giveClientCheckTableList.add(checkListTableBean);
-                            }
-                        }
-                    }
-                    if (giveClientCheckTableList != null &&
-                            giveClientCheckTableList.size() > 0) {
-                        deviceInstCheckEventEntity.setCheckListTableBeanList(giveClientCheckTableList);
-                        giveClientDeviceInstEventEntityList.add(deviceInstCheckEventEntity);
                     }
                 }
-            }
-            if (giveClientDeviceInstEventEntityList != null && giveClientDeviceInstEventEntityList.size() > 0) {
-                deviceInstCheckEntity.setDeviceInstCheckEventEntities(giveClientDeviceInstEventEntityList);
-                giveClientDeviceInstCheckList.add(deviceInstCheckEntity);
+                if (giveClientCheckTableList != null &&
+                        giveClientCheckTableList.size() > 0) {
+                    deviceInstCheckEventEntity.setCheckListTableBeanList(giveClientCheckTableList);
+                    deviceInstCheckEntity.setDeviceInstCheckEventEntity(deviceInstCheckEventEntity);
+                    giveClientDeviceInstCheckList.add(deviceInstCheckEntity);
+                }
             }
         }
         return giveClientDeviceInstCheckList;
@@ -1829,10 +1814,10 @@ public class TestUploadBusiness extends BaseBusiness {
             String structDeviceIns = CommonTools.Obj2String(dailyWorkEntity.getBelongDeviceIns());
             String belongTask=CommonTools.Obj2String(dailyWorkEntity.getBelongDivingTask());
             if (!"".equals(structSystem)){
-               Map structSystemMap=orientSqlEngine.getBmService().createModelQuery(structSystemBM).findById(structSystem);
-               if (structSystemMap!=null&&structSystemMap.size()>0){
-                   dailyWorkMap.put("C_STRUCT_SYSTEM_" + dailyWorkBM.getId(), CommonTools.Obj2String(structSystemMap.get("C_NAME_"+structSystemBM.getId())));
-               }
+                Map structSystemMap=orientSqlEngine.getBmService().createModelQuery(structSystemBM).findById(structSystem);
+                if (structSystemMap!=null&&structSystemMap.size()>0){
+                    dailyWorkMap.put("C_STRUCT_SYSTEM_" + dailyWorkBM.getId(), CommonTools.Obj2String(structSystemMap.get("C_NAME_"+structSystemBM.getId())));
+                }
             }
             if (!"".equals(structDeviceIns)){
                 StringBuffer deviceInsSql=new StringBuffer();

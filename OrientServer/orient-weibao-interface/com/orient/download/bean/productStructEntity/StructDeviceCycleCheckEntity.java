@@ -8,9 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class StructDeviceCycleCheckEntity implements Serializable {
+    private String deviceId;
     private String id;
     private String name;
-    private LinkedList<CheckTempInstBean> checkTempInstBeanList=null;
+    //检查周期
+    private String checkCycle;
+    private LinkedList<CheckTempInstBean> checkTempInstBeanList = null;
 
     public String getId() {
         return id;
@@ -34,5 +37,21 @@ public class StructDeviceCycleCheckEntity implements Serializable {
 
     public void setCheckTempInstBeanList(LinkedList<CheckTempInstBean> checkTempInstBeanList) {
         this.checkTempInstBeanList = checkTempInstBeanList;
+    }
+
+    public String getCheckCycle() {
+        return checkCycle;
+    }
+
+    public void setCheckCycle(String checkCycle) {
+        this.checkCycle = checkCycle;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 }

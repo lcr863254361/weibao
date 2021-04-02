@@ -10,7 +10,8 @@ public class DeviceInstCheckEventEntity implements Serializable {
     private String checkEventName;
     private String checker;
     private String checkTime;
-    private boolean passed;
+    private String passed;
+
     private List<CheckListTableBean> checkListTableBeanList = UtilFactory.newArrayList();
 
     public void setCheckEventName(String checkEventName) {
@@ -37,11 +38,11 @@ public class DeviceInstCheckEventEntity implements Serializable {
         this.checkTime = checkTime;
     }
 
-    public boolean isPassed() {
+    public String getPassed() {
         return passed;
     }
 
-    public void setPassed(boolean passed) {
+    public void setPassed(String passed) {
         this.passed = passed;
     }
 
@@ -52,4 +53,5 @@ public class DeviceInstCheckEventEntity implements Serializable {
     public void setCheckListTableBeanList(List<CheckListTableBean> checkListTableBeanList) {
         this.checkListTableBeanList = checkListTableBeanList;
     }
+
 }
